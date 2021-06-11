@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="tokenStore" class="com.mnzit.store.TokenStore"/>
+
+    <bean id="jobFactoryBean" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.mnzit.jobs.TestJob"/>
+        <property name="jobDataMap">
+            <map>
+                <entry key="tokenStore" value-ref="tokenStore"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="jobFactoryBean"/>
+        <!-- repeat every 50 seconds -->
+        <property name="cronExpression" value="0/5 * * * * ?"/>
+    </bean>
+
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="trigger" />
+            </list>
+        </property>
+    </bean>
+</beans>

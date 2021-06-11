@@ -1,14 +1,24 @@
 package com.mnzit.jobs;
 
-import org.quartz.Job;
+import com.mnzit.store.TokenStore;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.springframework.scheduling.quartz.QuartzJobBean;
 
-import java.time.ZonedDateTime;
+import java.util.Date;
 
-public class TestJob implements Job {
 
-    @Override
-    public void execute(JobExecutionContext context) {
-        System.out.println("Scheduler output: " + ZonedDateTime.now().toString());
+public class TestJob extends QuartzJobBean {
+
+    private TokenStore tokenStore;
+
+    public void setTokenStore(TokenStore tokenStore) {
+        this.tokenStore = tokenStore;
     }
+
+    @Override protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        System.out.println(new Date());
+        System.out.println(tokenStore);
+    }
+
 }
