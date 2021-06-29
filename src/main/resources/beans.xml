@@ -3,21 +3,29 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="tokenStore" class="com.mnzit.store.TokenStore"/>
+    <bean id="tokenStore" class="com.mnzit.service.TokenStore"/>
+    <bean id="tokenWebService" class="com.mnzit.service.TokenWebService"/>
+    <bean id="tokenFetcher" class="com.mnzit.jobs.TokenFetcher"/>
 
-    <bean id="jobFactoryBean" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-        <property name="jobClass" value="com.mnzit.jobs.TestJob"/>
-        <property name="jobDataMap">
-            <map>
-                <entry key="tokenStore" value-ref="tokenStore"/>
-            </map>
-        </property>
+<!--    <bean id="jobFactoryBean" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">-->
+<!--        <property name="jobClass" value="com.mnzit.jobs.TokenJob"/>-->
+<!--        <property name="jobDataMap">-->
+<!--            <map>-->
+<!--                <entry key="tokenStore" value-ref="tokenStore"/>-->
+<!--                <entry key="tokenWebService" value-ref="tokenWebService"/>-->
+<!--            </map>-->
+<!--        </property>-->
+<!--    </bean>-->
+
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="tokenFetcher"/>
+        <property name="targetMethod" value="retrieveToken"/>
+        <property name="concurrent" value="false"/>
     </bean>
 
     <bean id="trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="jobDetail" ref="jobFactoryBean"/>
-        <!-- repeat every 50 seconds -->
-        <property name="cronExpression" value="0/5 * * * * ?"/>
+        <property name="jobDetail" ref="jobDetail"/>
+        <property name="cronExpression" value="* * * * * ?"/>
     </bean>
 
     <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
